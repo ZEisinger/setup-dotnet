@@ -225,11 +225,15 @@ export class DotnetCoreInstaller {
           downloadUrls.push(file['url']);
         });
       } else {
-        throw `The specified version's download links are not correctly formed in the supported versions document => ${releasesJsonUrl}`;
+        console.log(
+          `The specified version's download links are not correctly formed in the supported versions document => ${releasesJsonUrl}`
+        );
       }
-    } else {
+    }
+
+    if (downloadUrls.length == 0) {
       console.log(
-        `Could not fetch download information for version ${version}`
+        `Could not find download information for version, using fall back urls ${version}`
       );
       downloadUrls = await this.getFallbackDownloadUrls(version);
     }
