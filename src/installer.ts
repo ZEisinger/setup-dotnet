@@ -162,11 +162,11 @@ export class DotnetCoreInstaller {
         scriptArguments.push('--version', this.version);
       }
 
-      resultCode = await exec.exec(`which wget || which curl`);
+      // resultCode = await exec.exec(`hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`);
 
-      if (resultCode != 0) {
-        resultCode = await exec.exec(`mv nwget wget`);
-      }
+      // if (resultCode != 0) {
+      //   resultCode = await exec.exec(`touch wget`);
+      // }
 
       // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
       resultCode = await exec.exec(`"${scriptPath}"`, scriptArguments, {
