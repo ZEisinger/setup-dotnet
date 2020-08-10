@@ -44,18 +44,21 @@ jobs:
           echo $PATH
           dotnet --info
           rm -rf "/Users/runner/.dotnet"
+          echo $PATH
       - name: Clear tool cache (Ubuntu)
         if: runner.os == 'linux'
         run: |
           echo $PATH
           dotnet --info
           rm -rf "/usr/share/dotnet"
+          echo $PATH
       - name: Clear tool cache (Windows)
         if: runner.os == 'windows'
         run: |
           echo $env:PATH
           dotnet --info
           Remove-Item $env:LocalAppData\Microsoft\dotnet/*  -Recurse -Force -ErrorAction SilentlyContinue
+          echo $PATH
       - name: Setup dotnet 3.1.201
         uses: ./
         with:
