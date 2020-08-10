@@ -168,6 +168,9 @@ export class DotnetCoreInstaller {
 
       if (resultCode != 0) {
         resultCode = await exec.exec(`apt-get install curl`);
+        if (resultCode != 0) {
+          throw "curl could not be installed"
+        }
       }
 
       // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
