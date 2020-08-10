@@ -75,7 +75,7 @@ jobs:
   test-proxy:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/core/runtime-deps:3.1
+      image: mcr.microsoft.com/dotnet/core/runtime-deps:3.1-bionic
       options: --dns 127.0.0.1
     services:
       squid-proxy:
