@@ -63,6 +63,8 @@ jobs:
         uses: ./
         with:
           dotnet-version: 3.1.201
+      - name: check PATH
+        run: echo $PATH
       - name: Verify dotnet
         if: runner.os != 'windows'
         run: __tests__/verify-dotnet.sh 3.1.201
@@ -72,9 +74,9 @@ jobs:
 
   test-proxy:
     runs-on: ubuntu-latest
-    # container:
-    #   image: mcr.microsoft.com/dotnet/core/runtime-deps:3.0-bionic
-    #   options: --dns 127.0.0.1
+    container:
+      image: mcr.microsoft.com/dotnet/core/runtime-deps:3.0-bionic
+      options: --dns 127.0.0.1
     services:
       squid-proxy:
         image: datadog/squid:latest
