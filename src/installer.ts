@@ -167,7 +167,9 @@ export class DotnetCoreInstaller {
       );
 
       if (resultCode != 0) {
-        resultCode = await exec.exec(`apt-get install curl`);
+        resultCode = await exec.exec(
+          `echo -e '#!/usr/bin/env bash'"\n\n$(pwd)/node_modules/.bin/nwget \"$@\"" > "./wget";chmod +x ./wget;PATH_OLD="$PATH";PATH="$PATH:$(pwd)"`
+        );
         if (resultCode != 0) {
           throw 'curl could not be installed';
         }
