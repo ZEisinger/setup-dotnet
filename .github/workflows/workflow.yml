@@ -90,7 +90,7 @@ jobs:
       - name: Clear tool cache
         run: rm -rf "/usr/share/dotnet"
       - name: Install curl
-        run: apt-get curl
+        run: apt install curl
       - name: Setup dotnet 3.1.201
         uses: ./
         with:
