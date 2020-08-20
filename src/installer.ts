@@ -169,7 +169,7 @@ export class DotnetCoreInstaller {
       if (resultCode != 0) {
         resultCode = await exec.exec(`apt-get install curl`);
         if (resultCode != 0) {
-          throw "curl could not be installed"
+          throw 'curl could not be installed';
         }
       }
 
