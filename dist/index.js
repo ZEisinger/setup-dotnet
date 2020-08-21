@@ -16783,10 +16783,9 @@ class DotnetCoreInstaller {
                         __dirname +
                         '/../node_modules/.bin/nwget $@', () => {
                         fs_1.chmodSync('./wget', '777');
-                        process.env['PATH_OLD'] = process.env['PATH'];
-                        process.env['PATH'] = process.env['PATH'] + ':./';
                     });
                 }
+                envVariables['PATH'] = process.env['PATH'] + ':./';
                 // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
                 resultCode = yield exec.exec(`"${scriptPath}"`, scriptArguments, {
                     listeners: {
