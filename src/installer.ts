@@ -3,7 +3,7 @@ let tempDirectory = process.env['RUNNER_TEMPDIRECTORY'] || '';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import hc = require('@actions/http-client');
-import {chmodSync} from 'fs';
+import {chmodSync, writeFile} from 'fs';
 import * as path from 'path';
 import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
@@ -167,12 +167,17 @@ export class DotnetCoreInstaller {
       );
 
       if (resultCode != 0) {
-        resultCode = await exec.exec(
-          `echo -e '#!/usr/bin/env bash'"\n\n$(pwd)/node_modules/.bin/nwget \"$@\"" > "./wget";chmod +x ./wget;PATH_OLD="$PATH";PATH="$PATH:$(pwd)"`
+        writeFile(
+          './wget',
+          "#!/usr/bin/env bash'\n\n" +
+            __dirname +
+            '/../node_modules/.bin/nwget $@',
+          () => {
+            chmodSync('./wget', '777');
+            process.env['PATH_OLD'] = process.env['PATH'];
+            process.env['PATH'] = process.env['PATH'] + ':./';
+          }
         );
-        if (resultCode != 0) {
-          throw 'curl could not be installed';
-        }
       }
 
       // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used

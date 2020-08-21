@@ -16777,6 +16777,16 @@ class DotnetCoreInstaller {
                 if (this.version) {
                     scriptArguments.push('--version', this.version);
                 }
+                resultCode = yield exec.exec(`hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`);
+                if (resultCode != 0) {
+                    fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
+                        __dirname +
+                        '/../node_modules/.bin/nwget $@', () => {
+                        fs_1.chmodSync('./wget', '777');
+                        process.env['PATH_OLD'] = process.env['PATH'];
+                        process.env['PATH'] = process.env['PATH'] + ':./';
+                    });
+                }
                 // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
                 resultCode = yield exec.exec(`"${scriptPath}"`, scriptArguments, {
                     listeners: {
