@@ -163,7 +163,16 @@ export class DotnetCoreInstaller {
       }
 
       resultCode = await exec.exec(
-        `hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`
+        `hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`,
+        [],
+        {
+          listeners: {
+            stdout: (data: Buffer) => {
+              output += data.toString();
+            }
+          },
+          env: envVariables
+        }
       );
 
       if (resultCode != 0) {

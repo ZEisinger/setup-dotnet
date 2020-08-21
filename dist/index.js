@@ -16777,7 +16777,14 @@ class DotnetCoreInstaller {
                 if (this.version) {
                     scriptArguments.push('--version', this.version);
                 }
-                resultCode = yield exec.exec(`hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`);
+                resultCode = yield exec.exec(`hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`, [], {
+                    listeners: {
+                        stdout: (data) => {
+                            output += data.toString();
+                        }
+                    },
+                    env: envVariables
+                });
                 if (resultCode != 0) {
                     fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
                         __dirname +
