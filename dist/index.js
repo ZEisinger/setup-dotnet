@@ -16820,7 +16820,7 @@ const hc = __webpack_require__(539);
 const fs_1 = __webpack_require__(747);
 const path = __importStar(__webpack_require__(622));
 const semver = __importStar(__webpack_require__(280));
-const command_exists_1 = __webpack_require__(677);
+const commandExists = __importStar(__webpack_require__(677));
 const IS_WINDOWS = process.platform === 'win32';
 if (!tempDirectory) {
     let baseLocation;
@@ -16951,8 +16951,8 @@ class DotnetCoreInstaller {
                 if (this.version) {
                     scriptArguments.push('--version', this.version);
                 }
-                command_exists_1.commandExists('curl').catch(() => {
-                    command_exists_1.commandExists('wget').catch(() => {
+                commandExists('curl').catch(() => {
+                    commandExists('wget').catch(() => {
                         fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
                             __dirname +
                             '/../node_modules/.bin/nwget $@', () => {

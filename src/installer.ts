@@ -7,7 +7,7 @@ import {chmodSync, writeFile} from 'fs';
 import * as path from 'path';
 import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
-import {commandExists} from 'command-exists';
+import * as commandExists from 'command-exists';
 
 const IS_WINDOWS = process.platform === 'win32';
 
