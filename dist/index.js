@@ -4905,6 +4905,171 @@ module.exports = {"name":"@octokit/rest","version":"16.28.9","publishConfig":{"a
 
 /***/ }),
 
+/***/ 243:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+"use strict";
+
+
+var exec = __webpack_require__(129).exec;
+var execSync = __webpack_require__(129).execSync;
+var fs = __webpack_require__(747);
+var path = __webpack_require__(622);
+var access = fs.access;
+var accessSync = fs.accessSync;
+var constants = fs.constants || fs;
+
+var isUsingWindows = process.platform == 'win32'
+
+var fileNotExists = function(commandName, callback){
+    access(commandName, constants.F_OK,
+    function(err){
+        callback(!err);
+    });
+};
+
+var fileNotExistsSync = function(commandName){
+    try{
+        accessSync(commandName, constants.F_OK);
+        return false;
+    }catch(e){
+        return true;
+    }
+};
+
+var localExecutable = function(commandName, callback){
+    access(commandName, constants.F_OK | constants.X_OK,
+        function(err){
+        callback(null, !err);
+    });
+};
+
+var localExecutableSync = function(commandName){
+    try{
+        accessSync(commandName, constants.F_OK | constants.X_OK);
+        return true;
+    }catch(e){
+        return false;
+    }
+}
+
+var commandExistsUnix = function(commandName, cleanedCommandName, callback) {
+
+    fileNotExists(commandName, function(isFile){
+
+        if(!isFile){
+            var child = exec('command -v ' + cleanedCommandName +
+                  ' 2>/dev/null' +
+                  ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }',
+                  function (error, stdout, stderr) {
+                      callback(null, !!stdout);
+                  });
+            return;
+        }
+
+        localExecutable(commandName, callback);
+    });
+
+}
+
+var commandExistsWindows = function(commandName, cleanedCommandName, callback) {
+  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
+  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
+    callback(null, false);
+    return;
+  }
+  var child = exec('where ' + cleanedCommandName,
+    function (error) {
+      if (error !== null){
+        callback(null, false);
+      } else {
+        callback(null, true);
+      }
+    }
+  )
+}
+
+var commandExistsUnixSync = function(commandName, cleanedCommandName) {
+  if(fileNotExistsSync(commandName)){
+      try {
+        var stdout = execSync('command -v ' + cleanedCommandName +
+              ' 2>/dev/null' +
+              ' && { echo >&1 ' + cleanedCommandName + '; exit 0; }'
+              );
+        return !!stdout;
+      } catch (error) {
+        return false;
+      }
+  }
+  return localExecutableSync(commandName);
+}
+
+var commandExistsWindowsSync = function(commandName, cleanedCommandName, callback) {
+  // Regex from Julio from: https://stackoverflow.com/questions/51494579/regex-windows-path-validator
+  if (!(/^(?!(?:.*\s|.*\.|\W+)$)(?:[a-zA-Z]:)?(?:(?:[^<>:"\|\?\*\n])+(?:\/\/|\/|\\\\|\\)?)+$/m.test(commandName))) {
+    return false;
+  }
+  try {
+      var stdout = execSync('where ' + cleanedCommandName, {stdio: []});
+      return !!stdout;
+  } catch (error) {
+      return false;
+  }
+}
+
+var cleanInput = function(s) {
+  if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
+    s = "'"+s.replace(/'/g,"'\\''")+"'";
+    s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+      .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
+  }
+  return s;
+}
+
+if (isUsingWindows) {
+  cleanInput = function(s) {
+    var isPathName = /[\\]/.test(s);
+    if (isPathName) {
+      var dirname = '"' + path.dirname(s) + '"';
+      var basename = '"' + path.basename(s) + '"';
+      return dirname + ':' + basename;
+    }
+    return '"' + s + '"';
+  }
+}
+
+module.exports = function commandExists(commandName, callback) {
+  var cleanedCommandName = cleanInput(commandName);
+  if (!callback && typeof Promise !== 'undefined') {
+    return new Promise(function(resolve, reject){
+      commandExists(commandName, function(error, output) {
+        if (output) {
+          resolve(commandName);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+  if (isUsingWindows) {
+    commandExistsWindows(commandName, cleanedCommandName, callback);
+  } else {
+    commandExistsUnix(commandName, cleanedCommandName, callback);
+  }
+};
+
+module.exports.sync = function(commandName) {
+  var cleanedCommandName = cleanInput(commandName);
+  if (isUsingWindows) {
+    return commandExistsWindowsSync(commandName, cleanedCommandName);
+  } else {
+    return commandExistsUnixSync(commandName, cleanedCommandName);
+  }
+};
+
+
+/***/ }),
+
 /***/ 248:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -14960,6 +15125,14 @@ module.exports = function btoa(str) {
 
 /***/ }),
 
+/***/ 677:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+module.exports = __webpack_require__(243);
+
+
+/***/ }),
+
 /***/ 683:
 /***/ (function(module) {
 
@@ -16647,6 +16820,7 @@ const hc = __webpack_require__(539);
 const fs_1 = __webpack_require__(747);
 const path = __importStar(__webpack_require__(622));
 const semver = __importStar(__webpack_require__(280));
+const command_exists_1 = __webpack_require__(677);
 const IS_WINDOWS = process.platform === 'win32';
 if (!tempDirectory) {
     let baseLocation;
@@ -16777,21 +16951,15 @@ class DotnetCoreInstaller {
                 if (this.version) {
                     scriptArguments.push('--version', this.version);
                 }
-                resultCode = yield exec.exec(`hash "wget" > /dev/null 2>&1 || hash "curl" > /dev/null 2>&1`, [], {
-                    listeners: {
-                        stdout: (data) => {
-                            output += data.toString();
-                        }
-                    },
-                    env: envVariables
-                });
-                if (resultCode != 0) {
-                    fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
-                        __dirname +
-                        '/../node_modules/.bin/nwget $@', () => {
-                        fs_1.chmodSync('./wget', '777');
+                command_exists_1.commandExists('curl').catch(() => {
+                    command_exists_1.commandExists('wget').catch(() => {
+                        fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
+                            __dirname +
+                            '/../node_modules/.bin/nwget $@', () => {
+                            fs_1.chmodSync('./wget', '777');
+                        });
                     });
-                }
+                });
                 envVariables['PATH'] = process.env['PATH'] + ':./';
                 // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
                 resultCode = yield exec.exec(`"${scriptPath}"`, scriptArguments, {
