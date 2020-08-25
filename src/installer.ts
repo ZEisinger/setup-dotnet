@@ -7,7 +7,7 @@ import {chmodSync, writeFile} from 'fs';
 import * as path from 'path';
 import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
-import * as commandExists from 'command-exists';
+import commandExists from 'command-exists';
 
 const IS_WINDOWS = process.platform === 'win32';
 
@@ -163,18 +163,22 @@ export class DotnetCoreInstaller {
         scriptArguments.push('--version', this.version);
       }
 
-      commandExists('curl').catch(() => {
-        commandExists('wget').catch(() => {
-          writeFile(
-            './wget',
-            "#!/usr/bin/env bash'\n\n" +
-              __dirname +
-              '/../node_modules/.bin/nwget $@',
-            () => {
-              chmodSync('./wget', '777');
+      commandExists('curl', (err, exists) => {
+        if (!exists) {
+          commandExists('wget', (err, exists) => {
+            if (!exists) {
+              writeFile(
+                './wget',
+                "#!/usr/bin/env bash'\n\n" +
+                  __dirname +
+                  '/../node_modules/.bin/nwget $@',
+                () => {
+                  chmodSync('./wget', '777');
+                }
+              );
             }
-          );
-        });
+          });
+        }
       });
 
       envVariables['PATH'] = process.env['PATH'] + ':./';

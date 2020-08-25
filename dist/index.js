@@ -16810,6 +16810,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DotnetCoreInstaller = exports.DotNetVersionInfo = void 0;
 // Load tempDirectory before it gets wiped by tool-cache
@@ -16820,7 +16823,7 @@ const hc = __webpack_require__(539);
 const fs_1 = __webpack_require__(747);
 const path = __importStar(__webpack_require__(622));
 const semver = __importStar(__webpack_require__(280));
-const commandExists = __importStar(__webpack_require__(677));
+const command_exists_1 = __importDefault(__webpack_require__(677));
 const IS_WINDOWS = process.platform === 'win32';
 if (!tempDirectory) {
     let baseLocation;
@@ -16951,14 +16954,18 @@ class DotnetCoreInstaller {
                 if (this.version) {
                     scriptArguments.push('--version', this.version);
                 }
-                commandExists('curl').catch(() => {
-                    commandExists('wget').catch(() => {
-                        fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
-                            __dirname +
-                            '/../node_modules/.bin/nwget $@', () => {
-                            fs_1.chmodSync('./wget', '777');
+                command_exists_1.default('curl', (err, exists) => {
+                    if (!exists) {
+                        command_exists_1.default('wget', (err, exists) => {
+                            if (!exists) {
+                                fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
+                                    __dirname +
+                                    '/../node_modules/.bin/nwget $@', () => {
+                                    fs_1.chmodSync('./wget', '777');
+                                });
+                            }
                         });
-                    });
+                    }
                 });
                 envVariables['PATH'] = process.env['PATH'] + ':./';
                 // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
