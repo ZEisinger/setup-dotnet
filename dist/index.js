@@ -16958,7 +16958,7 @@ class DotnetCoreInstaller {
                     if (!exists) {
                         command_exists_1.default('wget', (err, exists) => {
                             if (!exists) {
-                                fs_1.writeFile('./wget', "#!/usr/bin/env bash'\n\n" +
+                                fs_1.writeFile('./wget', "#!/bin/bash'\n\n" +
                                     __dirname +
                                     '/../node_modules/.bin/nwget $@', () => {
                                     fs_1.chmodSync('./wget', '777');
