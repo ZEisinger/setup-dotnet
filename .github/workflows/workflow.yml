@@ -70,9 +70,9 @@ jobs:
 
   test-proxy:
     runs-on: ubuntu-latest
-    # container:
-    #   image: mcr.microsoft.com/dotnet/core/runtime-deps:3.0-bionic
-    #   options: --dns 127.0.0.1
+    container:
+      image: mcr.microsoft.com/dotnet/core/runtime-deps:3.0-bionic
+      options: --dns 127.0.0.1
     services:
       squid-proxy:
         image: datadog/squid:latest
@@ -85,6 +85,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Clear tool cache
         run: rm -rf "/usr/share/dotnet"
+      - name: Install curl
+        run: |
+          apt update
+          apt install curl
       - name: Setup dotnet 3.1.201
         uses: ./
         with:
