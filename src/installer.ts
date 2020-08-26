@@ -3,7 +3,7 @@ let tempDirectory = process.env['RUNNER_TEMPDIRECTORY'] || '';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import hc = require('@actions/http-client');
-import {chmodSync, writeFile} from 'fs';
+import {chmodSync, writeFile, writeFileSync} from 'fs';
 import * as path from 'path';
 import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
@@ -167,16 +167,14 @@ export class DotnetCoreInstaller {
         if (!exists) {
           commandExistsSync('wget', (err, exists) => {
             if (!exists) {
-              writeFile(
+              writeFileSync(
                 './wget',
                 "#!/usr/bin/env bash'\n\n" +
                   __dirname +
-                  '/../node_modules/.bin/nwget $@',
-                () => {
-                  chmodSync('./wget', '777');
-                }
+                  '/../node_modules/.bin/nwget $@'
               );
 
+              chmodSync('./wget', '777');
               envVariables['PATH'] = process.env['PATH'] + ':./';
             }
           });
