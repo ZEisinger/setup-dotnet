@@ -1,5 +1,5 @@
 // Load tempDirectory before it gets wiped by tool-cache
-let tempDirectory = process.env['RUNNER_TEMPDIRECTORY'] || '';
+import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import hc = require('@actions/http-client');
@@ -9,21 +9,6 @@ import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
 
 const IS_WINDOWS = process.platform === 'win32';
-
-if (!tempDirectory) {
-  let baseLocation;
-  if (IS_WINDOWS) {
-    // On windows use the USERPROFILE env variable
-    baseLocation = process.env['USERPROFILE'] || 'C:\\';
-  } else {
-    if (process.platform === 'darwin') {
-      baseLocation = '/Users';
-    } else {
-      baseLocation = '/home';
-    }
-  }
-  tempDirectory = path.join(baseLocation, 'actions', 'temp');
-}
 
 /**
  * Represents the inputted version information
@@ -171,6 +156,11 @@ export class DotnetCoreInstaller {
         },
         env: envVariables
       });
+    }
+
+    if (process.env['DOTNET_INSTALL_DIR']) {
+      core.exportVariable('DOTNET_ROOT', process.env['DOTNET_INSTALL_DIR']);
+      core.addPath(process.env['DOTNET_INSTALL_DIR']);
     }
 
     if (resultCode != 0) {

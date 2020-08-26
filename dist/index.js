@@ -16640,7 +16640,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DotnetCoreInstaller = exports.DotNetVersionInfo = void 0;
 // Load tempDirectory before it gets wiped by tool-cache
-let tempDirectory = process.env['RUNNER_TEMPDIRECTORY'] || '';
+const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const io = __importStar(__webpack_require__(1));
 const hc = __webpack_require__(539);
@@ -16648,22 +16648,6 @@ const fs_1 = __webpack_require__(747);
 const path = __importStar(__webpack_require__(622));
 const semver = __importStar(__webpack_require__(280));
 const IS_WINDOWS = process.platform === 'win32';
-if (!tempDirectory) {
-    let baseLocation;
-    if (IS_WINDOWS) {
-        // On windows use the USERPROFILE env variable
-        baseLocation = process.env['USERPROFILE'] || 'C:\\';
-    }
-    else {
-        if (process.platform === 'darwin') {
-            baseLocation = '/Users';
-        }
-        else {
-            baseLocation = '/home';
-        }
-    }
-    tempDirectory = path.join(baseLocation, 'actions', 'temp');
-}
 /**
  * Represents the inputted version information
  */
@@ -16786,6 +16770,10 @@ class DotnetCoreInstaller {
                     },
                     env: envVariables
                 });
+            }
+            if (process.env['DOTNET_INSTALL_DIR']) {
+                core.exportVariable('DOTNET_ROOT', process.env['DOTNET_INSTALL_DIR']);
+                core.addPath(process.env['DOTNET_INSTALL_DIR']);
             }
             if (resultCode != 0) {
                 throw `Failed to install dotnet ${resultCode}. ${output}`;
