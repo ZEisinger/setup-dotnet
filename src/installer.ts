@@ -169,7 +169,7 @@ export class DotnetCoreInstaller {
             if (!exists) {
               writeFile(
                 './wget',
-                "#!/usr/bin/env bash'\n\n" +
+                "#!/bin/bash'\n\n" +
                   __dirname +
                   '/../node_modules/.bin/nwget $@',
                 () => {
