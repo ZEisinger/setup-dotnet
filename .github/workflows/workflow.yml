@@ -89,7 +89,7 @@ jobs:
       - name: Install curl
         run: |
           apt update
-          apt install curl
+          apt -y install curl
       - name: Setup dotnet 3.1.201
         uses: ./
         with:
