@@ -7,7 +7,7 @@ import {chmodSync, writeFile} from 'fs';
 import * as path from 'path';
 import {ExecOptions} from '@actions/exec/lib/interfaces';
 import * as semver from 'semver';
-import commandExists from 'command-exists';
+import commandExistsSync from 'command-exists';
 
 const IS_WINDOWS = process.platform === 'win32';
 
@@ -163,25 +163,25 @@ export class DotnetCoreInstaller {
         scriptArguments.push('--version', this.version);
       }
 
-      commandExists('curl', (err, exists) => {
+      commandExistsSync('curl', (err, exists) => {
         if (!exists) {
-          commandExists('wget', (err, exists) => {
+          commandExistsSync('wget', (err, exists) => {
             if (!exists) {
               writeFile(
                 './wget',
-                "#!/bin/bash'\n\n" +
+                "#!/usr/bin/env bash'\n\n" +
                   __dirname +
                   '/../node_modules/.bin/nwget $@',
                 () => {
                   chmodSync('./wget', '777');
                 }
               );
+
+              envVariables['PATH'] = process.env['PATH'] + ':./';
             }
           });
         }
       });
-
-      envVariables['PATH'] = process.env['PATH'] + ':./';
 
       // process.env must be explicitly passed in for DOTNET_INSTALL_DIR to be used
       resultCode = await exec.exec(`"${scriptPath}"`, scriptArguments, {
