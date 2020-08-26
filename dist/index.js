@@ -16771,9 +16771,8 @@ class DotnetCoreInstaller {
                     env: envVariables
                 });
             }
-            if (process.env['DOTNET_INSTALL_DIR']) {
-                core.exportVariable('DOTNET_ROOT', process.env['DOTNET_INSTALL_DIR']);
-                core.addPath(process.env['DOTNET_INSTALL_DIR']);
+            if (process.env['PATH']) {
+                core.exportVariable('PATH', process.env['PATH']);
             }
             if (resultCode != 0) {
                 throw `Failed to install dotnet ${resultCode}. ${output}`;
