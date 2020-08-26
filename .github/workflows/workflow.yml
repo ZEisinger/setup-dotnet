@@ -87,6 +87,7 @@ jobs:
         run: rm -rf "/usr/share/dotnet"
       - name: Install curl
         run: |
+          ping 8.8.8.8
           apt update
           apt install curl
       - name: Setup dotnet 3.1.201
