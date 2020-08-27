@@ -16774,6 +16774,7 @@ class DotnetCoreInstaller {
             if (process.env['PATH']) {
                 core.exportVariable('PATH', process.env['PATH']);
             }
+            console.log(process.env['PATH']);
             if (resultCode != 0) {
                 throw `Failed to install dotnet ${resultCode}. ${output}`;
             }
