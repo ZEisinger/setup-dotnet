@@ -16771,8 +16771,18 @@ class DotnetCoreInstaller {
                     env: envVariables
                 });
             }
-            if (process.env['PATH']) {
-                core.exportVariable('PATH', process.env['PATH']);
+            if (process.env['DOTNET_INSTALL_DIR']) {
+                core.addPath(process.env['DOTNET_INSTALL_DIR']);
+            }
+            else {
+                if (IS_WINDOWS) {
+                    // This is the default set in install-dotnet.ps1
+                    core.addPath(path.join(process.env['%LocalAppData'] + '', 'Microsoft', 'dotnet'));
+                }
+                else {
+                    // This is the default set in install-dotnet.sh
+                    core.addPath(path.join(process.env['HOME'] + '', '.dotnet'));
+                }
             }
             console.log(process.env['PATH']);
             if (resultCode != 0) {
